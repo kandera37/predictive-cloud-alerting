@@ -152,8 +152,8 @@ Main limitations:
 
 - the dataset is synthetic and does not capture all real production behaviors
 - baseline model uses flattened windows and does not explicitly model temporal structure
-- ident generation is rule-based and intentionally simplified
-- ults may vary depending on synthetic data settings and train/test split
+- incident generation is rule-based and intentionally simplified
+- results may vary depending on synthetic data settings and train/test split
 
 ## Possible improvements
 
@@ -170,7 +170,7 @@ Potential next steps:
 
 A similar predictive alerting approach could be adapted to real monitored systems such as:
 
-- cloud services
+- cloud services    
 - backend applications
 - infrastructure nodes
 - VPN gateways
