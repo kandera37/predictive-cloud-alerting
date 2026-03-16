@@ -104,6 +104,20 @@ I tested multiple thresholds:
 
 On the current synthetic split, **0.7** produced the strongest result because it reduced false positives while keeping recall unchanged.
 
+## Current best baseline
+
+Current best baseline configuration on the synthetic test split:
+
+- **Model:** Logistic Regression
+- **Window size (W):** 20
+- **Prediction horizon (H):** 5
+- **Best threshold:** 0.7
+- **Precision:** 0.9500
+- **Recall:** 0.7917
+- **F1-score:** 0.8636
+
+This threshold produced the strongest trade-off on the current split by reducing false positives while preserving recall.
+
 ## Visualizations
 
 The project generates plots in the `artifacts/` folder:
