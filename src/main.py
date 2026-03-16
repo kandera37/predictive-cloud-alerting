@@ -1,6 +1,7 @@
 from data_generation import generate_synthetic_metrics
 from dataset import create_sliding_window_dataset
-from evaluation import evaluate_classification
+from evaluation import evaluate_classification, apply_threshold
+from visualization import plot_metrics_with_incidents, plot_prediction_probabilities
 from model import (
     prepare_features_for_model,
     split_dataset,
@@ -41,8 +42,15 @@ def main() -> None:
 
     model = train_logistic_regression(X_train_scaled, y_train)
 
-    y_pred = model.predict(X_test_scaled)
+    incident_probabilities = model.predict_proba(X_test_scaled)[:, 1]
+    threshold = 0.7
+    y_pred = apply_threshold(incident_probabilities, threshold=threshold)
+
     metrics = evaluate_classification(y_test, y_pred)
+
+    print()
+    print("Decision threshold:", threshold)
+    print("First 10 incident probabilities:", incident_probabilities[:10])
 
     print()
     print("Evaluation metrics:")
@@ -51,6 +59,14 @@ def main() -> None:
     print("F1:", metrics["f1"])
     print("Confusion matrix:")
     print(metrics["confusion_matrix"])
+    plot_metrics_with_incidents(df)
+    plot_prediction_probabilities(
+        probabilities=incident_probabilities,
+        threshold=threshold,
+    )
+
+    print()
+    print("Plots saved to artifacts/")
 
 
 if __name__ == "__main__":

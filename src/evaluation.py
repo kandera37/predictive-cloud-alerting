@@ -18,3 +18,7 @@ def evaluate_classification(
         "f1": float(f1),
         "confusion_matrix": matrix,
     }
+
+def apply_threshold(probabilities: np.ndarray, threshold: float = 0.5) -> np.ndarray:
+    """Convert predicted probabilities into binary labels using a decision threshold."""
+    return (probabilities >= threshold).astype(int)
