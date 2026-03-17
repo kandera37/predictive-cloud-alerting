@@ -72,6 +72,19 @@ This choice makes it easy to:
 - establish a baseline before trying more complex models
 - inspect the effect of threshold selection on alert behavior
 
+## Why this baseline is useful
+
+This baseline is useful because it provides a simple and interpretable starting point for predictive alerting.
+
+It helps validate:
+
+- the sliding-window problem formulation
+- the incident labeling strategy
+- the probability-based alerting setup
+- the effect of threshold selection on alert behavior
+
+Before moving to more complex models, this baseline makes it easier to understand whether the core framing of the task is reasonable.
+
 ## Evaluation metrics
 
 The model is evaluated using:
@@ -81,26 +94,28 @@ The model is evaluated using:
 - **F1-score** — balance between precision and recall
 - **Confusion matrix** — summary of correct and incorrect predictions
 
+## Alerting trade-offs
+
+In predictive alerting, model errors have operational meaning:
+
+- **False positives** correspond to unnecessary alerts
+- **False negatives** correspond to missed incidents
+
+This makes threshold selection especially important. A lower threshold may increase recall but also produce more alert noise, while a higher threshold may reduce false alarms at the cost of missing more real incidents.
+
+Because of this, the project evaluates not only raw model predictions, but also how decision thresholds affect alert quality.
+
 ## Threshold comparison
 
 The model predicts incident probabilities, and an alert is raised if the probability exceeds a chosen threshold.
 
 I tested multiple thresholds:
 
-### Threshold = 0.3
-- Precision: **0.7037**
-- Recall: **0.7917**
-- F1: **0.7451**
-
-### Threshold = 0.5
-- Precision: **0.8636**
-- Recall: **0.7917**
-- F1: **0.8261**
-
-### Threshold = 0.7
-- Precision: **0.9500**
-- Recall: **0.7917**
-- F1: **0.8636**
+| Threshold | Precision | Recall | F1-score |
+|-----------|-----------|--------|----------|
+| 0.3 | 0.7037 | 0.7917 | 0.7451 |
+| 0.5 | 0.8636 | 0.7917 | 0.8261 |
+| 0.7 | 0.9500 | 0.7917 | 0.8636 |
 
 On the current synthetic split, **0.7** produced the strongest result because it reduced false positives while keeping recall unchanged.
 
@@ -126,6 +141,14 @@ The project generates plots in the `artifacts/` folder:
 - **predicted_probabilities.png** — predicted incident probabilities with a decision threshold
 
 These plots help interpret both the synthetic data and the model behavior.
+
+### Metrics with incident intervals
+
+![Metrics with incidents](artifacts/metrics_with_incidents.png)
+
+### Predicted incident probabilities
+
+![Predicted probabilities](artifacts/predicted_probabilities.png)
 
 ## Project structure
 
@@ -158,6 +181,22 @@ Run the project:
 python3 src/main.py
 ```
 
+## CLI usage
+
+The experiment can be configured from the command line:
+
+```bash
+python3 src/main.py --num-steps 300 --window-size 20 --horizon 5 --threshold 0.7 --random-seed 42
+```
+
+Key configurable parameters:
+- `--num-steps` — number of generated time steps
+- `--window-size` — sliding window size `W`
+- `--horizon` — prediction horizon `H`
+- `--threshold` — alert decision threshold
+- `--random-seed` — random seed for reproducible synthetic data
+
+
 ## Current limitations
 
 This is still a simplified prototype.
@@ -165,7 +204,7 @@ This is still a simplified prototype.
 Main limitations:
 
 - the dataset is synthetic and does not capture all real production behaviors
-- baseline model uses flattened windows and does not explicitly model temporal structure
+- the baseline model uses flattened windows and does not explicitly model temporal structure
 - incident generation is rule-based and intentionally simplified
 - results may vary depending on synthetic data settings and train/test split
 
@@ -184,18 +223,23 @@ Potential next steps:
 
 A similar predictive alerting approach could be adapted to real monitored systems such as:
 
-- cloud services    
+- cloud services
 - backend applications
 - infrastructure nodes
 - VPN gateways
 
-In a real deployment, synthetic metrics would be replaced by real monitoring signals, and alert thresholds could be tuned depending on whether the system should prioritize:
-- fewer false alerts
-- fewer missed incidents
-### Metrics with incident intervals
+### Example: VPN or gateway infrastructure
 
-![Metrics with incidents](artifacts/metrics_with_incidents.png)
+For example, a similar pipeline could be applied to a small self-managed VPN or gateway-like server.
 
-### Predicted incident probabilities
+In such a setup, the model could monitor signals such as:
 
-![Predicted probabilities](artifacts/predicted_probabilities.png)
+- CPU usage
+- memory usage
+- active connection count
+- reconnect frequency
+- failed handshake rate
+- packet loss
+- latency
+
+This could help raise alerts before severe overload, abnormal traffic spikes, or broader service degradation become critical.
